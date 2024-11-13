@@ -3,7 +3,50 @@ import argparse
 import os
 import sys
 
-from ..ffm_convertor import FFMConvertor
+import ffmpeg
+
+# from ..ffm_convertor import FFMConvertor
+
+
+class FFMConvertor:
+    # i just discovered what this staticmethod python decorator is.
+    # afaik, you use this whenever you have a member function that is not manipulating and class variable data,
+    # thus you declare it as a staatic method so that it cannot access the `self.` variables?
+    @staticmethod
+    def convert_webm_to_mp4_module(input_webm_path, output_mp4_path):
+        """let's convert this .webm file to .mp4, boss!"""
+        try:
+            input_video = ffmpeg.input(input_webm_path)
+            stream = ffmpeg.output(input_video, output_mp4_path)
+            ffmpeg.run(stream)
+            print(
+                f"success! converted '{input_webm_path}' to '{output_mp4_path}', dude!"
+            )
+        except Exception as e:
+            print("watch out bruh! an error occurred:", e)
+
+    @staticmethod
+    def convert_mp4_to_gif_module(
+        input_mp4_path, output_gif_path, start_time, duration
+    ):
+        """let's transform this .mp4 file into a stunning .gif, my friend!"""
+        try:
+            # Create the input stream
+            input_stream = ffmpeg.input(input_mp4_path, ss=start_time, t=duration)
+
+            # Create a complex filtergraph
+            split = ffmpeg.filter_multi_output(input_stream, "split")
+            palette = ffmpeg.filter(split[0], "palettegen")
+            output = ffmpeg.filter([split[1], palette], "paletteuse")
+
+            # Run the conversion
+            ffmpeg.output(output, output_gif_path).overwrite_output().run()
+
+            print(
+                f"success! converted '{input_mp4_path}' to '{output_gif_path}', dude!"
+            )
+        except Exception as e:
+            print("whoa dude! like, an error occurred:", e)
 
 
 def parse_arguments():
@@ -61,7 +104,7 @@ def main():
 
     # compute file path from args, feed as params into function
     input_mp4_path, output_gif_path = get_file_paths(args)
-    ffm.convert_mp4_to_gif_module(input_mp4_path, output_gif_path)
+    ffm.convert_mp4_to_gif_module(input_mp4_path, output_gif_path, 0, 5)
     # ffm.convert_mp4_to_gif_module(input_mp4_path, output_gif_path)
 
 
